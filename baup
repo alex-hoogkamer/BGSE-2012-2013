@@ -1,0 +1,19 @@
+echo ""
+echo "created on 8 oct. 2012"
+echo "by Alex Hoogkamer s1047388"
+echo "this is a bash script that starts a python script"
+echo "for this script python3 needs to be installed"
+cd /home/alex/workspace/baup
+python3 Baup.py
+awk 'BEGIN{(getline line<"species"); system("mkdir -p " line);}'
+ls | egrep gz > a
+awk 'BEGIN{getline line<"a"; system("gunzip " line)}'
+rm a
+awk 'BEGIN{ fn = "gen0"; n = 0}{if (substr($1,1,1) == ">"){close (fn) 
+n++
+fn = "gen" n} print > fn}' *fa
+rm *fa
+rm species
+egrep -v "A|T|C|G|>" gen? | cut -c 1-4 | uniq > a
+#awk 'BEGIN{con = system("cat a")}{if con == ""{system("cat gen* > unk.txt");};}'
+exit $?
