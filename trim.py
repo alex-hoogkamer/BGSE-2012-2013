@@ -17,9 +17,18 @@ def trim(file1):
             line = line.strip('\n')
             readindex = readindex + 1
             file3.append(line)
+            '''
+            the script fills a list of 4 lines form the file
+            this list contains a full fastq read which is used
+            for the next part.
+            '''
             if readindex == 4:
                 readindex = 0
                 seq = file3[1]
+                '''
+                some reads begin with a N at the start of the dna sequence
+                this is removed
+                '''
                 if seq[0] == 'N':
                     file3[1] = file3[1].strip('N')
                     tempstring = file3[3]

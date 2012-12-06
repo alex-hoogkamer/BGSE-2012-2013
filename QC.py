@@ -1,7 +1,8 @@
 #!/usr/bin/python
 import time
+import os
 '''
-Created on 20 sep. 2012
+Created on 20 Sep. 2012
 
 @author: Alex
 '''
@@ -20,14 +21,30 @@ def QCscript():
     totallength = 0
     maxlength = 0
     minlength = 0
-    with open("%s.txt" % filename, 'rU') as file1:# open the file
+    with open("{filename}.txt".format(filename = filename), 'rU') as file1:# open the file
         for line in file1:
+            '''
+            this counts the number of reads
+            if it encounters an @ it adds 1
+            to reads.
+            '''
             if line[0] == '@':
                 reads = reads + 1 # this counts the number of reads
             else:
                 index = index + 1 # this counter is used to identify the contents of the line
                     
+            '''
+            this if statement checks if the current line contains a sequence
+            '''
             if (index % 3) == 1: # if index divided by 3 leaves 1 than the current line is a line with a DNA sequence
+                '''
+                this block calculates the GC contents per read and entire dataset.
+                it counts the number of G and C per read, adds it together and 
+                devides it by 1% of the read length.
+                the GC content of the read is added to the GC content list.
+                for the global GC content only the total length of the read
+                is added to the totallength variable for later use. 
+                ''' 
                 line = line.strip("\n")
                 line = line.strip("N")# if the sequence starts with an N it needs to be removed
                 lenread = len(line)
@@ -39,7 +56,10 @@ def QCscript():
                 totallength = totallength + lenread # this is used to store the total length of all reads
                 GCcontentread = GCcontentread/(lenread*0.01) # GC content of read
                 GCcontent.append(GCcontentread) # add GC percentage to the list
-                            
+                
+                '''
+                if and elif statements for finding the minimum and miximum read length
+                '''             
                 if lenread > maxlength: # if the read length is larger than maxlength it is the largest read
                     maxlength = lenread
                 elif minlength == 0:# if the minlength = 0 the current read length will be assigned as the smallest read
@@ -47,6 +67,14 @@ def QCscript():
                 elif lenread < minlength: # if the read length is smaller than minlength it is the smallest read
                     minlength = lenread # if the minlength = 0 than all raeds are of the same length
                                 
+                '''
+                the next block calulates the GC content per position.
+                the code check per position in a read if a G or C is present
+                if they are present it adds a 1 to GClist and continues to 
+                the next position in the same read. it also adds a 1 to listreadcount
+                in order to calculate the number of reads for each position.
+                this is neccesary to calculate the correct %GC.
+                '''
                 positionindex = 0
                 for position in line:
                     Ccount = position.count("C") # count the G content of the position
@@ -63,19 +91,25 @@ def QCscript():
                             GClist.append(GCcount)
                             listreadcount.append(1)
                     positionindex = positionindex +1
+                    #print(GClist)
             else:
                 pass        
                                 
-        
+        '''
+        this calulates the global reads by dividing the totalGCcontent with 1% of the totallength
+        '''
         mean = totallength / reads # the total length is divided by the total number of reads to calculade the mean length        
         globalGC = totalGCcontent/(totallength*0.01) # calculate global GC content
         for position in range(len(GClist)): # add GC content per position to list
             GClist[position] = GClist[position]/(listreadcount[position]*0.01) # calculate percentage GC per position and add it to list
         
+    '''
+    these values are returned to be written to file
+    '''
     return(reads, mean, minlength, maxlength, GCcontent, globalGC, GClist)
     file1.close
 
-filename = 's_2_1_sequence1-trimmed'
+filename = 's_2_1_sequence-trimmed'
 localtime = time.asctime(time.localtime(time.time()))
 #print("Local current time :", localtime)
 file2 = open("%s results" %filename,'a')
